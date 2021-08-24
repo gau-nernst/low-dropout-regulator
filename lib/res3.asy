@@ -1,0 +1,23 @@
+Version 4
+SymbolType CELL
+LINE Normal 16 -24 16 -32
+LINE Normal 32 -16 16 -24
+LINE Normal 0 0 32 -16
+LINE Normal 32 16 0 0
+LINE Normal 0 32 32 16
+LINE Normal 16 48 16 40
+LINE Normal 16 40 0 32
+WINDOW 0 43 0 Left 0
+WINDOW 3 43 25 Left 0
+SYMATTR Value R
+SYMATTR Prefix R
+SYMATTR Description A resistor
+PIN 16 48 NONE 0
+PINATTR PinName A
+PINATTR SpiceOrder 2
+PIN 16 -32 NONE 0
+PINATTR PinName B
+PINATTR SpiceOrder 1
+PIN 0 16 NONE 8
+PINATTR PinName C
+PINATTR SpiceOrder 3
