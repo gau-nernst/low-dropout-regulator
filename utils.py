@@ -47,3 +47,12 @@ def parse_ltspice_txt(path):
                 data.append(data_point)
     
     return data
+
+def calculate_line(x0: float, y0: float, slope: float, xs=None, ys=None):
+    if xs is None and ys is None:
+        raise ValueError
+
+    if xs is not None:
+        return y0 + (xs - x0) * slope
+
+    return x0 + (ys - y0) / slope
