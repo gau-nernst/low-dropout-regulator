@@ -21,27 +21,24 @@ def parse_ltspice_number(number):
 def parse_ltspice_txt(path):
     data = []
     start_token = "Step Information: "
-    var_names = None
+    sweep_var_names = None
 
     with open(path) as f:
-        var1, var2 = f.readline().rstrip().split()
+        var_names = f.readline().rstrip().split()
 
         for line in f:
             line = line.rstrip() 
             if line.startswith(start_token):
                 parts = [x.split("=") for x in line.split() if "=" in x]
                 
-                var_names = [x[0] for x in parts]
-                var_values = [parse_ltspice_number(x[1]) for x in parts]
+                sweep_var_names = [x[0] for x in parts]
+                sweep_var_values = [parse_ltspice_number(x[1]) for x in parts]
 
             else:
-                var1_value, var2_value = [float(x) for x in line.split()]
-                data_point = {
-                    var1: var1_value,
-                    var2: var2_value,
-                }
-                if var_names is not None:
-                    for name, value in zip(var_names, var_values):
+                var_values = [float(x) for x in line.split()]
+                data_point = {name: value for name, value in zip(var_names, var_values)}
+                if sweep_var_names is not None:
+                    for name, value in zip(sweep_var_names, sweep_var_values):
                         data_point[name] = value
                 
                 data.append(data_point)
