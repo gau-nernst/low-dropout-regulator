@@ -45,6 +45,40 @@ def parse_ltspice_txt(path):
     
     return data
 
+def parse_ltspice_raw(path, ascii_format=True):
+    if not ascii_format:
+        raise NotImplementedError
+    
+    variables = []
+    values = []
+    with open(path) as f:
+        # seek to line "Variables:"
+        while True:
+            line = f.readline().rstrip()
+            if line == "Variables:":
+                break
+
+        # read variables' names
+        while True:
+            line = f.readline().rstrip()
+            if line == "Values:":
+                break
+            variables.append(line.split()[1])
+
+        # read values
+        while True:
+            line = f.readline().rstrip()
+            if line:
+                new_values = [line.split()[-1]]
+                for _ in range(len(variables)-1):
+                    new_values.append(f.readline().rstrip().split()[-1])
+                new_values = [float(x) for x in new_values]
+                values.append(new_values)
+            else:
+                break
+        
+    return variables, values
+
 def calculate_line(x0: float, y0: float, slope: float, xs=None, ys=None):
     if xs is None and ys is None:
         raise ValueError
