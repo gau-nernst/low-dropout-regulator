@@ -1,3 +1,7 @@
+import numpy as np
+import pandas as pd
+
+
 unit_suffix = {
     "K":   1e3, "k":   1e3,
     "MEG": 1e6, "meg": 1e6,
@@ -11,12 +15,14 @@ unit_suffix = {
     "F": 1e-15, "f": 1e-15, "femto": 1e-15
 }
 
+
 def parse_ltspice_number(number):
     for i, x in enumerate(number):
         if x.isalpha():
             return float(number[:i]) * unit_suffix[number[i:]]
 
     return float(number)
+
 
 def parse_ltspice_txt(path):
     data = []
@@ -45,10 +51,12 @@ def parse_ltspice_txt(path):
     
     return data
 
-def parse_ltspice_raw(path, ascii_format=True):
-    if not ascii_format:
-        raise NotImplementedError
-    
+
+def parse_ltspice_raw(path, ascii=False):
+    return parse_ltspice_raw_ascii(path) if ascii else parse_ltspice_raw_bin(path)
+
+
+def parse_ltspice_raw_ascii(path):
     variables = []
     values = []
     with open(path) as f:
@@ -78,6 +86,37 @@ def parse_ltspice_raw(path, ascii_format=True):
                 break
         
     return variables, values
+
+
+def parse_ltspice_raw_bin(path):
+    with open(path, 'rb') as f:
+        bin_data = f.read()
+
+    var_names = []
+    start_append = False
+    curr_i = 0
+    num_vars = 0
+    for i in range(len(bin_data)):
+        if bin_data[i:i+1] == b'\n':        # new line
+            line = bin_data[curr_i:i].decode('utf-16')
+            curr_i = i + 2      # skip '\n'
+            
+            if line == 'Binary:':
+                break
+            
+            if line.startswith('No. Variables: '):
+                num_vars = int(line[len('No. Variables: '):])
+            
+            if start_append:
+                var_names.append(line.split('\t')[2])
+            
+            if line == 'Variables:':
+                start_append = True
+
+    data = np.frombuffer(bin_data[curr_i:], dtype=np.float64).reshape(-1, num_vars)
+    df = pd.DataFrame(data, columns=var_names)
+    return df
+
 
 def calculate_line(x0: float, y0: float, slope: float, xs=None, ys=None):
     if xs is None and ys is None:
